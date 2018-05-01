@@ -1,0 +1,332 @@
+\documentclass {article}
+\usepackage[usenames]{color}
+\usepackage{tikz}
+\usepackage{colortbl}
+\usepackage{ulem}
+\usepackage[pdfborder=0 0 0,colorlinks,linkcolor=black]{hyperref}
+\usepackage{verbatim}
+\usepackage[utf8]{inputenc}
+\usepackage[T1, T2A]{fontenc}
+\usepackage[english,russian]{babel}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{titling}
+\usepackage{geometry}
+\geometry{pdftex, a4paper}
+\geometry{left=2.5cm, right=2.5cm, top = 2cm}
+\usepackage{caption}
+\DeclareCaptionFont{white}{\color{white}}
+\definecolor{mycol}{rgb}{0.98,0.92,0.9}
+\definecolor{mycol1}{rgb}{0.8,0.2,0.2}
+\DeclareCaptionFormat{listing}{\colorbox{mycol1}{\parbox{\textwidth}{#1#2#3}}}
+\captionsetup[lstlisting]{format=listing}
+\predate{}
+\postdate{}
+\date{}
+\posttitle{\par\end{center}}
+\title{{\bfseries Ввод, вывод. Файлы}}
+\begin{document}
+\lstset{%
+language=C++,            
+basicstyle=\small\ttfamily, 
+numbers=left,       
+numberstyle=\tiny,       
+stepnumber=1,           
+numbersep=5pt,            
+backgroundcolor=\color{mycol},
+showspaces=false,  
+showstringspaces=false,  
+showtabs=false,     
+keywordstyle=\bfseries\color{green!40!black},
+identifierstyle=\color{blue},
+stringstyle=\color{orange},
+frame=single,    
+tabsize=2,         
+captionpos=t,       
+breaklines=true,         
+breakatwhitespace=false,
+escapeinside={\%*}{*)}   
+}
+\maketitle
+\section{Файлы в Linux}
+\begin{itemize}
+\item В Linux любое устройство считается файлом\\
+\texttt{\textcolor{red}{/dev/null}} --- пустое устройство, по факту удаляющее поступающие данные;\\
+\texttt{\textcolor{red}{/dev/cdrom}} --- файл, соответствующий CD-ROM;\\
+\texttt{\textcolor{red}{/dev/hwrandom}} --- файл с потоком случайных чисел;
+\item Имя - ссылка на файл, следовательно, имен у файла может быть несколько
+\item Права доступа принадлежат файлу, а не его имени (именам)
+\item При запуске С-программы по-умолчанию открываются файлы:\\
+ \texttt{stdout} --- файл вывода;\\
+ \texttt{stdin} --- файл ввода;\\
+ \texttt{stderr} --- файл, куда выводятся сообщения об ошибках;
+\item \texttt{stdout}, \texttt{stdin}, \texttt{stderr} --- глобальные переменные типа \texttt{FILE}.
+\end{itemize}
+\section{Стандартный ввод/вывод в C}
+Нужно подключить библиотеку \texttt{\textcolor{blue}{\#include} \textcolor{red}{<cstdio>}}.\\
+\def\tabrowsep{\noalign{\vskip 1.2pt}}
+\begin{center}
+\begin{tabular}{c c}
+\rowcolor[rgb]{0.8,0.2,0.2} Название & Что делает \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{printf} & пишет в \texttt{stdout} \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{scanf} & читает из \texttt{stdin} \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{puts} & пишет в \texttt{stdout} строку \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{gets} & читает из \texttt{stdin} строку\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{getch} & читает из \texttt{stdin} один символ \\
+\end{tabular}
+\end{center}
+\subsection{Функция \texttt{printf}}
+\begin{lstlisting}[caption=Пример синтаксиса]
+int printf(  
+   const char *format [,  
+   argument]...   
+);  
+\end{lstlisting}
+\begin{lstlisting}[caption=Пример]
+#include <cstdio>
+ 
+ int main()
+{
+    std::printf("Strings:\n");
+}
+\end{lstlisting}
+Функция \texttt{printf} записывает в поток \texttt{stdout} свои аргументы в соответствии с форматной строкой Format.\\
+Строка Format может содержать элементы двух видов:
+\begin{itemize}
+\item[-] символы, подлежащие выводу на экран;
+\item[-] спецификаторы формата, определяющие способ представления аргументов на экране. Например, \%d --- целое число.
+\end{itemize}
+Количество аргументов должно точно совпадать с количеством спецификаторов формата, и порядок их следования должен быть одинаковым.
+\begin{itemize}
+\item[-] Если аргументов будет больше, чем спецификаторов, то лишние аргументы проигнорируются.
+\item[-] Если аргументов будет меньше, чем спецификаторов, то недостающие аргументы функция извлекает из стека.
+\end{itemize}
+Функция \texttt{printf()} возвращает количество фактически напечатанных символов. Отрицательное число означает ошибку.
+\begin{center}
+Спецификаторы формата функции \texttt{printf}
+\begin{tabular}{c c}
+\rowcolor[rgb]{0.8,0.2,0.2} Код & Формат \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%a} & Выводит шестнадцатеричное число в форме 0xh.hhhhp+d (только C99)   \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%A} & Выводит шестнадцатеричное число в форме 0Xh.hhhhP+d (только C99)  \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%c} & Символ\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%d} & Десятичное целое число со знаком  \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%i} &  Десятичное целое число со знаком \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%e} &  Экспоненциальное представление числа (e на нижнем регистре)\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%E} &  Экспоненциальное представление числа (E на верхнем регистре)\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%f} & Десятичное число с плавающей точкой \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%F} &  То же, что и  \texttt{\%f}, но выдает надписи INF, INFINITY или NAN на верхнем регистре\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%g} & Использует более короткий из форматов  \texttt{\%e} или  \texttt{\%f} \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%G} & Использует более короткий из форматов  \texttt{\%E} или  \texttt{\%F} \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%o} &  Восьмеричное число без знака \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%s} & Символьная строка \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%u} &  Десятичное целое число без знака\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%x} &  Шестнадцатеричное без знака (строчные буквы)\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%X} &  Шестнадцатеричное без знака (прописные буквы)\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%p} &  Выводит указатель \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%n} &  Указатель на переменную целого типа --- количество записанных символов \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%\%} & Выводит знак процента \\
+\end{tabular}
+\end{center}
+На спецификации формата могут воздействовать {\bfseries модификаторы}, задающие ширину поля, точность и признак выравнивания по левому краю.\\ Целое значение, расположенное между знаком  \texttt{\textcolor{red}{\%}} и командой форматирования, играет роль спецификации минимальной ширины поля. По умолчанию в качестве заполнителя используется пробел. Для заполнения нулями перед спецификацией ширины поля нужно поместить 0. Например, спецификация формата \texttt{\textcolor{red}{\%05d}} дополнит нулями выводимое число, в котором менее пяти цифр, чтобы общая длина равнялась 5 символам, а спецификация формата \texttt{\textcolor{red}{\%10.4f}} обеспечит вывод числа с четырьмя знаками после запятой в поле шириной не меньше десяти символов. Если модификатор точности применяется к строкам, число, следующее за точкой, задает максимальную длину поля. Например, спецификация формата \texttt{\textcolor{red}{\%5.7s}} выведет строку длиной не менее пяти, но не более семи символов. \\
+Модификатор \texttt{\textcolor{red}{\%h}} выводит число короткого целого типа, \texttt{\textcolor{red}{\%l}} --- длинного.
+Для некоторых из своих спецификаторов преобразования функция  \texttt{printf()} поддерживает два дополнительных модификатора: \texttt{\textcolor{red}{\%*}} и \texttt{\textcolor{red}{\%\#}}. 
+Непосредственное расположение \texttt{\textcolor{red}{\%\#}} перед спецификаторами преобразования \texttt{\%g}, \texttt{\%G}, \texttt{\%f}, \texttt{\%E} или \texttt{\%e} означает, что при выводе обязательно появится десятичная точка — даже если десятичных цифр нет. Если вы поставите \texttt{\textcolor{red}{\%\#}} непосредственно перед \texttt{\%x} или \texttt{\%X}, то шестнадцатеричное число будет выведено с префиксом \texttt{0x}. Если \texttt{\textcolor{red}{\%\#}} будет непосредственно предшествовать спецификатору преобразования \texttt{\%o}, число будет выведено с ведущим нулем. К любым другим спецификаторам преобразования модификатор \texttt{\textcolor{red}{\%\#}} применять нельзя. (В С99 модификатор \texttt{\textcolor{red}{\%\#}} можно применять по отношению к преобразованию \texttt{\%a}; это значит, что обязательно будет выведена десятичная точка.) 
+\subsection{Функция \texttt{scanf}}
+\begin{lstlisting}[caption=Синтаксис]
+int scanf(  
+   const char *format [,  
+   argument]...   
+);  
+\end{lstlisting}
+\begin{lstlisting}[caption=Пример]
+#include <stdio.h>
+
+int main(void)
+{
+  int i, j;
+
+  scanf("%o%x", &i, &j);
+
+  return 0;
+}
+\end{lstlisting}
+Функция \texttt{scanf()} представляет собой универсальную процедуру, которая считывает данные из потока \texttt{stdin} и записывает их в переменные, указанные в списке аргументов. Она может считывать данные всех встроенных типов и автоматически преобразовывать числа в соответствующий внутренний формат.
+Функцию \texttt{scanf()} может считывать поле, не присваивая его ни одной переменной. Для этого перед кодом соответствующего формата следует поставить символ *. Например:
+\texttt{scanf(``\%d\%*c\%d}\texttt{'', }\texttt{\&x, \&y);}     /При вводе строки ``10/20'' в переменные x и y запишутся числа 10 и 20, а знак ``/'' проигнорируется.
+Функция \texttt{scanf()} возвращает количество успешно введенных полей. В это число не входят считанные, но не присвоенные каким-либо переменным, поля. Если до первого присваивания произошла ошибка, то функция возвращает константу EOF.
+\begin{center}
+Спецификаторы формата функции \texttt{scanf}
+\begin{tabular}{c c}
+\rowcolor[rgb]{0.8,0.2,0.2} Код & Формат \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%a} & Читает значение с плавающей точкой (только С99)    \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%c} & Читает одиночный символ  \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%d} & Читает десятичное целое число   \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%i} &  Читает целое число как в десятичном, так и восьмеричном или шестнадцатеричном формате  \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%e} &  Читает число с плавающей точкой \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%f} &   Читает число с плавающей точкой \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%g} & Читает число с плавающей точкой  \texttt{\%e} или  \texttt{\%f} \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%o} &  Читает восьмеричное число  \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%s} & Читает строку  \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%u} &  Читает десятичное целое число без знака \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%x} &  Читает шестнадцатеричное число\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%p} &  Читает указатель  \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%[]} &  Читает набор сканируемых символов  \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%n} &  Принимает целое значение, равное количеству уже считанных символов  \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{\%\%} & Читает знак процента  \\
+\end{tabular}
+\end{center}
+Модификаторы аналогичны \texttt{printf()}.
+\section{Файловый ввод/вывод C}
+\subsection{Открытие и закрытие}
+{\bfseries Указатель файла} --- указатель на структуру типа \texttt{FILE}. В этой структуре хранится информация о файле, в частности его имя, статус и текущее положение курсора. \\
+\texttt{fopen()} --- Открывает поток и связывает его с файлом, возвращает указатель на этот файл. Если во время открытия файла происходит ошибка, функция\texttt{ fopen()} вернет нулевой указатель.\\
+\texttt{fclose()} --- Закрывает поток, открытый ранее функцией \texttt{fopen()}. Она записывает все оставшиеся в буфере данные в файл и закрывает его.
+\begin{lstlisting}
+#include <cstdio>
+...
+FILE* fp;
+fp= fopen("fileName.txt", "w");
+fclose(fp);
+...
+\end{lstlisting}
+\begin{center}
+\begin{tabular}{p{1 cm} p{14cm} }
+\rowcolor[rgb]{0.8,0.2,0.2} mode & что делает \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{``r''} & Режим открытия файла для чтения. Файл должен существовать   \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{``w''} & 
+Режим создания пустого файла для записи. Если файл с таким именем уже существует его содержимое стирается, и файл рассматривается как новый пустой файл  \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{``a''} & Дописать в файл. Операция добавления данных в конец файла. Файл создается, если он не существует   \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{``r+''} &  Режим открытия фала для обновления чтения и записи. Этот файл должен существовать  \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{``w+''} &  Создаёт пустой файл для чтения и записи. Если файл с таким именем уже существует его содержимое стирается, и файл рассматривается как новый пустой файл \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{``a+''} &   Открыть файл для чтения и добавления данных. Все операции записи выполняются в конец файла, защищая предыдущее содержания файла от случайного изменения. Вы можете изменить позицию (FSEEK, перемотка назад) внутреннего указателя на любое место файла только для чтения, операции записи будет перемещать указатель в конец файла, и только после этого дописывать новую информацию. Файл создается, если он не существует \\\tabrowsep
+\end{tabular}
+\end{center}
+Для того, чтобы открыть двоичный файл, к режиму нужно дописать ``b''. Например, ``wb'', ``wb+''.
+\subsection{Файловый ввод и вывод}
+\begin{itemize}
+\item \textcolor{blue}{\texttt{putc()}}, \textcolor{blue}{\texttt{fputc()}} --- запись символа character в файл, открытый с помощью функции \texttt{fopen()}. Если выполнена успешно, то возвращает символ, записанный в файл; в противном случае --- константу \texttt{EOF}
+\item \textcolor{blue}{\texttt{getc()}}, \textcolor{blue}{\texttt{fgetc()}} --- считывает символ из файла.
+\item  \textcolor{blue}{\texttt{fputs()}} --- записывает в заданный поток строку str, при возникновении ошибки возвращает константу \texttt{EOF}.
+\item \textcolor{blue}{\texttt{fgets()}} --- считывает строку из указанного потока, пока не обнаружит символ перехода или не прочитает (length-1) символов. Результирующая строка содержит символ перехода и заканчивается нулевым символом. В случае успеха функция возвращает указатель на введенную строку, в противном случае - нулевой указатель.
+\end{itemize}
+\begin{lstlisting}
+int putc(int character, FILE* fp);
+int fputc(int character, FILE* fp);
+int getc(FILE* fp);
+int fgetc(FILE* fp);
+int fputs(const char* str, FILE* fp);
+char* fgets(char* str, int length, FILE* fp);
+\end{lstlisting}
+\begin{itemize}
+\item \textcolor{blue}{\texttt{fprintf}}, \textcolor{blue}{\texttt{fscanf}} --- аналогичны функциям \textcolor{blue}{\texttt{printf()}} и \textcolor{blue}{\texttt{scanf()}} за исключением того, что работают с файлами.
+\item \textcolor{blue}{\texttt{fflush}} --- записывает содержимое буфера в файл, связанный с указателем fp. При вызове с нулевым аргументом, все данные из всех буферов будут записаны во все файлы, открытые для записи. 
+В случае успешного выполнения возвращает 0, иначе - константу \texttt{EOF}.
+\item \textcolor{blue}{\texttt{feof}} --- при обнаружении конца файла возвращает истинное значение, в противном случае - 0.
+\item  \textcolor{blue}{\texttt{ferror}} --- возвращает истинное значение, если при выполнении операции произошла ошибка, в противном случае возвращает ложное значение.
+\end{itemize}
+\begin{lstlisting}
+int fprintf(FILE* fp, const char* Format, ...);
+int fscanf(FILE* fp, const char* Format, ...);
+fprintf(stdout, ...);  
+fscanf(stdin, ...);     
+fprintf(stderr, ...);    
+int fflush(FILE* fp);
+int feof(FILE* fp);
+int ferror(FILE* fp); 
+\end{lstlisting}
+\section{Ввод и вывод C++}
+Чтобы пользоваться, нужна библиотека \textcolor{red}{\texttt{<iostream>}}. 
+В начале выполнения программы на языке C++ автоматически открываются следующие файлы:\\
+\begin{center}
+\begin{tabular} {l l l}
+std::cin   &  - Стандартный ввод       &      - Устройство по-умолчанию: Клавиатура \\
+std::cout  &   - Стандартный вывод      &      - Устройство по-умолчанию: Экран \\
+std::cerr   &  - Стандартный вывод ошибок    &   - Устройство по-умолчанию: Экран \\
+\end{tabular}
+\end{center}
+Запись в файл производится с помощью оператора \texttt{<} \texttt{<}, а чтение - с помощью оператора \texttt{>} \texttt{>}.
+Стандартные потоки сами определяют типы аргументов, для вывода не нужна форматная строка.\\ \\
+А так можно использовать файловые потоки:\\
+\\
+% у listings проблемы с русским языком, поэтому здесь я использую texttt%
+\texttt{
+\textcolor{blue}{\#include} \textcolor{red}{<fstream>} \\
+\textcolor{blue}{std::ifstream} f(  \textcolor{red}{``input.txt''} );     //Поток ввода \\
+\textcolor{blue}{std::ofstream} h(  \textcolor{red}{``output.txt''});     //Поток вывода \\
+\textcolor{blue}{std::fstream} io(  \textcolor{red}{``inout.txt''} );     //Поток ввода-вывода \\
+f > > ...;\\
+h < < ...;\\
+f.\textcolor{blue}{flush}();        //Принудительная запись информации из буфера в файл\\
+f.\textcolor{blue}{close}();         //Но при выходе из функции файл будет закрыт автоматически\\
+f.\textcolor{blue}{open}(\textcolor{blue}{const char*} \textcolor{red}{filename},\textcolor{blue}{ ios\_base::openmode} \textcolor{red}{mode} = \textcolor{red}{ ios\_base::in | ios\_base::out});\\
+}
+\section{Linux направление потоков ввода/вывода}
+\begin{figure}[h]
+\begin{minipage}[tH]{0.55\linewidth}
+\begin{itemize}
+\item Перенаправление ввода\\
+\texttt{
+\textcolor{blue}{test\_in.txt >}\textcolor{green}{ ./MyProg}\\
+\textcolor{blue}{./MyProg <} \textcolor{red}{test\_in.txt}
+}
+\item Перенаправление вывода\\
+\texttt{
+\textcolor{blue}{./MyProg >} \textcolor{green}{test\_out.txt}
+}
+\item Перенаправление вывода в режиме добавления\\
+\texttt{
+\textcolor{blue}{/MyProg > > }\textcolor{green}{test\_out.txt}
+}
+\item Перенаправление ввода/вывода\\
+\texttt{
+\textcolor{blue}{./MyProg <}\textcolor{red}{ test\_in.txt} \textcolor{blue}{ >}\textcolor{green}{ test\_out.txt}
+}
+\item Можно пользоваться дескрипторами вместо полных названий:\\
+\begin{tabular}{l l}
+\texttt{
+\textcolor{blue}{./MyProg} \textcolor{red}{2}\textcolor{blue}{>}\textcolor{green}{\&1} }& //Перенаправляется stderr на stdout.\\
+& //Сообщения об ошибках передаются туда же, куда и стандартный вывод. \\
+\end{tabular}
+\end{itemize}
+\end{minipage}
+\begin{tabular}[tH]{l l l}
+\rowcolor[rgb]{0.8,0.2,0.2}	 дескриптор & название & описание \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7}	 0 & stdin &Стандартный ввод\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} 1 & stdout &Стандартный ввод\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7}	 2 & stderr &Стандартный вывод ошибок\\
+\end{tabular}
+\end{figure}
+{\bfseries Дескриптор файла} --- это просто число, по которому система идентифицирует открытые файлы. Рассматривайте его как упрощенную версию указателя на файл.\\
+Последовательности команд в Linux можно объединять в сценарии --- bash-скрипты.
+С помощью команды \texttt{exec} можно перенаправлять \texttt{stdin/stdout/stderr}. \\
+Чтобы предотвратить наследование дескрипторов для дочерних процессов, их нужно закрыть:\\
+\texttt{n<\&- \\ m>\&-},\\ где n - входной файл, а m - выходной.\\
+Команда\texttt{ exec <filename} перенаправляет ввод со \texttt{stdin} на файл. С этого момента весь ввод, вместо \texttt{stdin}, будет производиться из этого файла. Аналогично, конструкция \texttt{exec >filename} перенаправляет вывод на \texttt{stdout} в заданный файл. После этого, весь вывод от команд, который обычно направляется на \texttt{stdout}, теперь выводится в этот файл.\\
+Например, этот скрипт запишет ``Hello'' в ``file.txt'', затем прочитает его оттуда же и передаст в \texttt{stdout}.\\ \\
+\begin{tt}
+\# !/bin/bash\\
+f=file.txt\\
+exec 6>\&1		//''сохраняем'' стандартный вывод\\
+exec >\$f 			//перенаправляем вывод в ``file.txt''\\
+echo Hello			//выводим ``Hello''\\
+exec 1>\&6 6>\&- 	//возвращаем стандартный вывод и закрываем дескриптор 6\\
+exec 7<\&0		//''сохраняем'' стандартный ввод\\
+exec < \$f		//перенаправляем ввод в ``file.txt''\\
+read word 			//читаем из ``file.txt''\\
+echo \$word		//выводим ``Hello'' на экран\\
+exec 0<\&7 7<\&- 		//возвращаем стандартный ввод и закрываем дескриптор 7\\
+\end{tt}
+\newline
+\section{Источники}
+\begin{itemize}
+\item \url{http://cppstudio.com/post/1253/}
+\item \url{www.c-cpp.ru/content/printf}
+\item \url{whttp://t-r-o-n.ru/developer/cbook/iii/i13/printf/}
+\item \url{http://cpp.com.ru/shildt_spr_po_c/08/0805.html}
+\item \url{http://t-r-o-n.ru/developer/cbook/iii/i13/scanf/}
+\item \url{https://www.opennet.ru/docs/RUS/bash_scripting_guide/c11620.html}
+\end{itemize}
+\newpage
+\tableofcontents
+\end{document}
+
