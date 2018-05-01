@@ -1,0 +1,229 @@
+\documentclass {article}
+\usepackage[usenames]{color}
+\usepackage{tikz}
+\usepackage{colortbl}
+\usepackage{ulem}
+\usepackage[pdfborder=0 0 0,colorlinks,linkcolor=black]{hyperref}
+\usepackage{verbatim}
+\usepackage[utf8]{inputenc}
+\usepackage[T1, T2A]{fontenc}
+\usepackage[english,russian]{babel}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{titling}
+\usepackage{geometry}
+\geometry{pdftex, a4paper}
+\geometry{left=2.5cm, right=2.5cm, top = 2cm}
+\usepackage{caption}
+\DeclareCaptionFont{white}{\color{white}}
+\definecolor{mycol1}{rgb}{0.58,0.78,0.2}
+\DeclareCaptionFormat{listing}{\colorbox{mycol1}{\parbox{\textwidth}{#1#2#3}}}
+\captionsetup[lstlisting]{format=listing}
+\predate{}
+\postdate{}
+\date{}
+\posttitle{\par\end{center}}
+\title{{\bfseries Полиморфизм. Перегрузка}}
+\begin{document}
+\definecolor{mycol}{rgb}{0.98,0.92,0.9}
+\maketitle
+\section{Введение}
+{\bfseries Полиморфизм} --- это способность функции обрабатывать данные разных типов
+\begin{center}.
+\begin{tikzpicture}
+\path (-8, 1) node(x) {Полиморфизм}
+(0, 3) node(y) {\textit{ad hoc} полиморфизм}
+(0, 1) node(y1) {один и тот же код для всех допустимых типов аргументов}
+(0,-1) node(z) {параметрический полиморфизм}
+(0,-3) node(z1) {потенциально разный код для каждого типа или подтипа аргумента};
+\draw [->, mycol1, thick] (x) -- (y);
+\draw [->, mycol1, semithick] (y) -- (y1);
+\draw [->, mycol1, semithick] (z) -- (z1);
+\draw [->, mycol1, thick] (x) -- (z);
+\end{tikzpicture}
+\end{center}
+\paragraph{Общие идеи}
+\begin {enumerate}
+\item Использование общего кода для разных типов
+\item Унифицированный вид кода (одни и те же операторы для разных случаев)
+\item Основные языковые инструменты:
+	\begin {itemize}
+		\item приведение типов
+		\item указатели на функции
+		\item перегрузка функций
+		\item шаблоны
+	\end {itemize}
+\end {enumerate}
+\paragraph{Приведение типов\\}
+Бывает {\bfseries явное} и {\bfseries неявное}. Неявное преобразование выполняет компилятор, а явное --- сам программист
+\lstset{%
+language=C,            
+basicstyle=\small\ttfamily, 
+numbers=left,       
+numberstyle=\tiny,       
+stepnumber=1,           
+numbersep=5pt,            
+backgroundcolor=\color{mycol},
+showspaces=false,  
+showstringspaces=false,  
+showtabs=false,  
+keywordstyle=\bfseries\color{green!40!black},
+identifierstyle=\color{blue},
+stringstyle=\color{orange},   
+frame=single,    
+tabsize=2,         
+captionpos=t,       
+breaklines=true,         
+breakatwhitespace=false,
+escapeinside={\%*}{*)}   
+}
+\begin{lstlisting}[caption=Неявное приведение типов]
+double x = 5.0;
+int y = x; 
+\end{lstlisting}
+\begin{lstlisting}[caption=Явное приведение типов]
+double x = 5.0;
+int y = (int)x;
+\end{lstlisting}
+\begin{lstlisting}[caption=Явное приведение типов]
+int ret=15;
+static_cast<float>(ret)/2;
+\end{lstlisting}
+\paragraph{Указатели на функции}
+\begin {itemize}
+	\item Функции тоже могут быть аргументами других функций. 
+	\item Можно применить функцию ко всему списку/дереву/массиву 
+\end {itemize}
+\begin{lstlisting}[caption=Реализация указателя на функцию]
+void f(int x) { }
+void (*pf)(int) = &f;
+pf(8);
+\end{lstlisting}
+\section{Перегрузка}
+\subsection{Перегрузка функций}
+{\bfseries Перегрузка функций (overloading)} --- поддержка нескольких функций с одинаковым именем, но разными аргументами.\\
+При компиляции к именам функций добавляются аргументы и длина имени функици\\
+\texttt{foo(int a, float b)} будет представлено как \texttt{\_Z3fooif }\\
+Компилятор сам выбирает, что подставить по аргументам.
+\begin{lstlisting}[caption=Пример перегрузки функции]
+int sum(int a, int b)         {return a+b;}
+float sum(float a,float b)    {return a+b;}
+float sum(float a,int b)        {return sum(a,(float)b);}
+\end{lstlisting}
+Причем, например, функцию ‘‘ {\bfseries int} sum({ \bfseries \textcolor{red}{ float}} a, {\bfseries \textcolor{red}{ int}} b) '' добавить уже нельзя.\\
+\def\tabrowsep{\noalign{\vskip 1.2pt}}
+\\Что можно использовать для перегрузки функции?
+\begin{center}
+\begin{tabular}{c c}
+\rowcolor[rgb]{0.58,0.78,0.2} Элемент объявления функции & Использование для перегрузки\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} Тип возвращаемого функцией значения & Нет \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} Число аргументов & Да \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} Тип аргументов & Да \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} Наличие или отсутствие многоточия & Да \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} Использование имен typedef & Нет \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} Незаданные границы массива & Нет \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7}{\bfseries const} или {\bfseries volatile}$^1$ & Да \\
+\end{tabular}
+\end{center}
+\footnotesize{$^1$ Используются для перегрузки, только если они применяются в классе для указателя {\bfseries this}, а не для типа возвращаемого значения функции. Перегрузка применяется, только если ключевое слово {\bfseries const} или {\bfseries volatile} следует за списком аргументов функции в объявлении}\\
+\normalsize
+\subsection{Перегрузка методов}
+{\bfseries Перегрузка методов} --- поддержка нескольких методов с одинаковым именем, но разными аргументами.
+\begin {itemize}
+	\item Методы могут быть устроены по-разному в зависимости от аргументов
+	\item Пример --- конструкторы
+\end {itemize}
+\begin{figure}[ht]
+\begin{lstlisting}[caption=Перегрузка метода]
+Class Matrix{
+    double** a;
+public:
+...
+    Matrix Multiply(double b);
+    Matrix Multiply(Vector b);   
+    Matrix Multiply(Matrix b);    
+};
+\end{lstlisting}
+\end{figure}
+\subsection{Перегрузка функций в классе}
+\begin {itemize}
+	\item Можно перегрузить функции для своего класса
+	\item Можно перегрузить функцию, имеющую доступ к private-полям класса - дружественную
+\end {itemize}
+\begin{lstlisting}[caption=Перегрузка функции swap]
+void swap(MyClass& A, MyClass& B);
+\end{lstlisting}
+\subsection{Перегрузка операторов}
+Операторы транслируются компилятором в функции(методы) и поэтому тоже могут быть перегружены. \\
+\textcolor{red}{Исключения:} \texttt{<.*>,<.>,<?:>} и \texttt{<::>}.
+\begin {itemize}
+	\item При перегрузке сохраняется арность оператора (например, бинарный оператор не может стать унарным)
+	\item Общий вид типов для перегрузки есть в стандарте
+	\begin{itemize}
+		\item Поскольку из объекта виден только интерфейс класса, обычно довольно строго смотрят на константность аргументов
+	\end{itemize}
+	\item Переопределение операторов для стандартных типов тоже невозможно
+	\begin{itemize}
+		\item можно создать свой тип-синоним: \texttt{\textcolor{blue}{typedef int} MyType}, и с ним делать, что нужно.
+	\end{itemize}
+	\item Перегрузка оператора в классе может быть:
+	\begin{itemize}
+		\item внешней (фунцкия) для бинарных операторов
+		\item внутренней (метод) для унарных операторов
+	\end{itemize}
+\end {itemize}
+При перегрузке сравнений обычно определяется минимальный набор, а остальные операторы через определенные, например \texttt{==} и \texttt{>} --- основа.
+\begin{lstlisting}[caption=Перегрузка сравнений]
+bool operator==(MyType a, MyType b){some code}
+bool operator>(MyType a, MyType b){some code}
+bool operator>=(MyType a, MyType b){return (a == b)||(a > b);}
+bool operator!=(MyType a, MyType b){return !(a == b);}
+bool operator<(MyType a, MyType b){return (!(a == b) || !(a > b));}
+\end{lstlisting}
+\begin{lstlisting}[caption=Перегрузка инкремента и декремента]
+MyType& operator++();            // prefix - ++a
+MyType& operator++(int a);           // postfix   - a++
+\end{lstlisting}
+Аргумент в постфиксной форме может быть использован, но это нежелательно. Нужен только для различий имен функций при трансляции.\\
+Оператор индексирования \texttt{[]} всегда определяется как член класса и, так как подразумевается поведение индексируемого объекта как массива, то ему следует возвращать ссылку.
+\begin{center}
+\begin{tabular}{c c}
+\rowcolor[rgb]{0.58,0.78,0.2} Оператор & Рекомендуемая форма\\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} Все унарные операторы & Член класса \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{= () [] -> ->*} & Обязательно член класса \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} \texttt{+= -= /= *= \^}\texttt{= \&= |= \%= >>= <<=} & Член класса \\\tabrowsep
+\rowcolor[rgb]{0.7,0.7,0.7} Остальные бинарные операторы & Не член класса\\\tabrowsep
+\end{tabular}
+\end{center}
+Стоит использовать следующие способы способы передачи аргументов в функции и возвращения значений операторов:
+\begin{itemize}
+\item Если аргумент не изменяется оператором, в случае, например унарного плюса, его нужно передавать как ссылку на константу. Вообще, это справедливо для почти всех арифметических операторов (сложение, вычитание, умножение...)
+\item Тип возвращаемого значения зависит от сути оператора. Если оператор должен возвращать новое значение, то необходимо создавать новый объект (как в случае бинарного плюса). Если вы хотите запретить изменение объекта как l-value, то нужно возвращать его константным.
+\item Для операторов присваивания необходимо возвращать ссылку на измененный элемент. Также, если вы хотите использовать оператор присваивания в конструкциях вида \texttt{(x=y).f()}, где функция \texttt{f()} вызывается для для переменной \texttt{x}, после присваивания ей \texttt{y}, то не возвращайте ссылку на константу, возвращайте просто ссылку.
+\item Логические операторы должны возвращать в худшем случае \texttt{int}, а в лучшем \texttt{bool}.
+\end{itemize}
+\begin{lstlisting}[caption=Перегрузка специальных символов]
+class vector{
+...
+    int operator [](size_t i) const {return array[i];}  
+    int& operator [](size_t i) {return array[i];}     
+};
+\end{lstlisting}
+\begin{lstlisting}[caption=Перегрузка оператора вывода]
+#include <iostream>
+...
+ostream& operator<<(ostream& os, const Date& dt)  
+{  
+    os << dt.mo << '/' << dt.da << '/' << dt.yr;  
+    return os;  
+}  
+\end{lstlisting}
+\section{Источники}
+\begin{itemize}
+\item \url{https://habr.com/post/132014/}
+\item \url{https://ru.wikipedia.org/wiki/Полиморфизм\_(информатика)}
+\item \url{cppstudio.com/post/310/}
+\item \url{https://msdn.microsoft.com/ru-ru/library/5dhe1hce.aspx}
+\end{itemize}
+\tableofcontents
+\end {document}
